@@ -64,7 +64,7 @@ namespace ResumableStream
             }
         }
 
-        protected void SetUnderlyingStream()
+        protected virtual void SetUnderlyingStream()
         {
             TryDisposeUnderlyingStream();
             UnderlyingStream = StreamProvider(Position);
