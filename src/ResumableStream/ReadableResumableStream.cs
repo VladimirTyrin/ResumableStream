@@ -39,7 +39,9 @@ namespace ResumableStream
             {
                 if (!ErrorIsRecoverable(exception))
                     throw new ResumableStreamException("Unrecoverable read error occured", exception);
-                await RecoverAsync(OperationType.Read, count, cancellationToken).ConfigureAwait(false);
+
+                OnRecoverableError(new StreamErrorEventArgs(OperationType.Read, Position, count, exception));
+                await RecoverAsync(count, cancellationToken).ConfigureAwait(false);
                 return await ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
             }
         }
@@ -56,7 +58,9 @@ namespace ResumableStream
             {
                 if (!ErrorIsRecoverable(exception))
                     throw new ResumableStreamException("Unrecoverable read error occured", exception);
-                Recover(OperationType.Read, count);
+
+                OnRecoverableError(new StreamErrorEventArgs(OperationType.Read, Position, count, exception));
+                Recover(count);
                 return Read(buffer, offset, count);
             }
         }

@@ -92,7 +92,7 @@ namespace ResumableStream
             RecoverableError?.Invoke(this, e);
         }
 
-        protected void Recover(OperationType operationType, int requestedCount)
+        protected void Recover(int requestedCount)
         {
             try
             {
@@ -102,14 +102,14 @@ namespace ResumableStream
             {
                 if (ErrorIsRecoverable(exception))
                 {
-                    OnRecoverableError(new StreamErrorEventArgs(operationType, Position, requestedCount, exception));
-                    Recover(operationType, requestedCount);
+                    OnRecoverableError(new StreamErrorEventArgs(OperationType.Recovery, Position, requestedCount, exception));
+                    Recover(requestedCount);
                 }
                 throw new ResumableStreamException("Failed to recover stream", exception);
             }
         }
 
-        protected async Task RecoverAsync(OperationType operationType, int requestedCount, CancellationToken cancellationToken)
+        protected async Task RecoverAsync(int requestedCount, CancellationToken cancellationToken)
         {
             try
             {
@@ -119,8 +119,8 @@ namespace ResumableStream
             {
                 if (ErrorIsRecoverable(exception))
                 {
-                    OnRecoverableError(new StreamErrorEventArgs(operationType, Position, requestedCount, exception));
-                    await RecoverAsync(operationType, requestedCount, cancellationToken).ConfigureAwait(false);
+                    OnRecoverableError(new StreamErrorEventArgs(OperationType.Recovery, Position, requestedCount, exception));
+                    await RecoverAsync(requestedCount, cancellationToken).ConfigureAwait(false);
                 }
                 throw new ResumableStreamException("Failed to recover stream", exception);
             }

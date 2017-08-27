@@ -10,6 +10,7 @@ namespace ResumableStream
     {
         Undefined,
         Read,
-        Write
+        Write,
+        Recovery
     }
 }
