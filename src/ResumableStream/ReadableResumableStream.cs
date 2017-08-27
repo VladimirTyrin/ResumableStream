@@ -3,6 +3,8 @@
 
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 namespace ResumableStream
@@ -12,7 +14,7 @@ namespace ResumableStream
     {
         #region public
 
-        public ReadableResumableStream(StreamProvider streamProvider) : base(streamProvider)
+        public ReadableResumableStream(IStreamProvider streamProvider) : base(streamProvider)
         {
         }
 
@@ -23,6 +25,23 @@ namespace ResumableStream
         public override void Flush()
         {
             // Nothing to do
+        }
+
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var readCount = await UnderlyingStream.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
+                _position += readCount;
+                return readCount;
+            }
+            catch (Exception exception)
+            {
+                if (!ErrorIsRecoverable(exception))
+                    throw new RecoverableStreamException("Unrecoverable read error occured");
+                await RecoverAsync(OperationType.Read, count, cancellationToken).ConfigureAwait(false);
+                return await ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -63,7 +82,14 @@ namespace ResumableStream
         protected override void SetUnderlyingStream()
         {
             base.SetUnderlyingStream();
-            if (! UnderlyingStream.CanRead)
+            if (!UnderlyingStream.CanRead)
+                throw new InvalidOperationException("Underlying stream is not readable");
+        }
+
+        protected override async Task SetUnderlyingStreamAsync(CancellationToken cancellationToken)
+        {
+            await base.SetUnderlyingStreamAsync(cancellationToken).ConfigureAwait(false);
+            if (!UnderlyingStream.CanRead)
                 throw new InvalidOperationException("Underlying stream is not readable");
         }
 

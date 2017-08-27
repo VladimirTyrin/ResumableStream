@@ -2,6 +2,8 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 namespace ResumableStream
@@ -41,7 +43,7 @@ namespace ResumableStream
 
         #region protected
 
-        protected ResumableStream(StreamProvider streamProvider)
+        protected ResumableStream(IStreamProvider streamProvider)
         {
             if (streamProvider == null)
                 throw new ArgumentNullException();
@@ -68,7 +70,16 @@ namespace ResumableStream
         protected virtual void SetUnderlyingStream()
         {
             TryDisposeUnderlyingStream();
-            UnderlyingStream = StreamProvider(Position);
+            UnderlyingStream = StreamProvider.GetStream(Position);
+
+            if (UnderlyingStream == null)
+                throw new InvalidOperationException("Failed to retrieve underlying stream");
+        }
+
+        protected virtual async Task SetUnderlyingStreamAsync(CancellationToken cancellationToken)
+        {
+            TryDisposeUnderlyingStream();
+            UnderlyingStream = await StreamProvider.GetStreamAsync(Position, cancellationToken).ConfigureAwait(false);
 
             if (UnderlyingStream == null)
                 throw new InvalidOperationException("Failed to retrieve underlying stream");
@@ -98,7 +109,24 @@ namespace ResumableStream
             }
         }
 
-        protected readonly StreamProvider StreamProvider;
+        protected async Task RecoverAsync(OperationType operationType, int requestedCount, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await SetUnderlyingStreamAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                if (ErrorIsRecoverable(exception))
+                {
+                    OnRecoverableError(new StreamErrorEventArgs(operationType, Position, requestedCount, exception));
+                    await RecoverAsync(operationType, requestedCount, cancellationToken).ConfigureAwait(false);
+                }
+                throw new RecoverableStreamException("Failed to recover stream", exception);
+            }
+        }
+
+        protected readonly IStreamProvider StreamProvider;
         protected Stream UnderlyingStream;
 
         #endregion
