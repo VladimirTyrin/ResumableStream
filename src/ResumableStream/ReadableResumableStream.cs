@@ -68,7 +68,7 @@ namespace ResumableStream
         public override bool CanRead => true;
         public override bool CanSeek => false;
         public override bool CanWrite => false;
-        public override long Length => 0;
+        public override long Length => Position - UnderlyingStream.Position + UnderlyingStream.Length;
         public override long Position
         {
             get { return _position; }
