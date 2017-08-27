@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
+    <ProjectGuid>{3A1E24D9-9C99-48DC-9EAB-80F5B0820AC4}</ProjectGuid>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="11.0.0" />
+  </ItemGroup>
 
 </Project>
