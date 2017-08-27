@@ -10,9 +10,13 @@ namespace ResumableStream
     [PublicAPI]
     public class ReadableResumableStream : ResumableStream
     {
+        #region public
+
         public ReadableResumableStream(StreamProvider streamProvider) : base(streamProvider)
         {
         }
+
+        #endregion
 
         #region override
 
@@ -23,18 +27,24 @@ namespace ResumableStream
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var readCount = UnderlyingStream.Read(buffer, offset, count);
+                _position += readCount;
+                return readCount;
+            }
+            catch (Exception exception)
+            {
+                if (!ErrorIsRecoverable(exception))
+                    throw new RecoverableStreamException("Unrecoverable read error occured");
+                Recover(OperationType.Read, count);
+                return Read(buffer, offset, count);
+            }
         }
 
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            throw new InvalidOperationException("Seek is not supported");
-        }
+        public override long Seek(long offset, SeekOrigin origin) => throw new InvalidOperationException("Seek is not supported");
 
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            throw new InvalidOperationException("Cannot write to readable stream");
-        }
+        public override void Write(byte[] buffer, int offset, int count) => throw new InvalidOperationException("Cannot write to readable stream");
 
         public override bool CanRead => true;
         public override bool CanSeek => false;
@@ -42,9 +52,26 @@ namespace ResumableStream
         public override long Length => 0;
         public override long Position
         {
-            get => 0;
-            set => throw new InvalidOperationException("Seek is not supported");
+            get { return _position; }
+            set { throw new InvalidOperationException("Seek is not supported"); }
         }
+
+        #endregion
+
+        #region protected
+
+        protected override void SetUnderlyingStream()
+        {
+            base.SetUnderlyingStream();
+            if (! UnderlyingStream.CanRead)
+                throw new InvalidOperationException("Underlying stream is not readable");
+        }
+
+        #endregion
+
+        #region private
+
+        private long _position;
 
         #endregion
     }

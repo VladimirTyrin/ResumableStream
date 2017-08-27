@@ -47,6 +47,7 @@ namespace ResumableStream
                 throw new ArgumentNullException();
 
             StreamProvider = streamProvider;
+            // ReSharper disable once VirtualMemberCallInConstructor
             SetUnderlyingStream();
         }
 
@@ -73,9 +74,28 @@ namespace ResumableStream
                 throw new InvalidOperationException("Failed to retrieve underlying stream");
         }
 
-        protected virtual void OnRecoverableError(StreamErrorEventArgs e)
+        protected bool ErrorIsRecoverable(Exception exception) => true;
+
+        protected void OnRecoverableError(StreamErrorEventArgs e)
         {
             RecoverableError?.Invoke(this, e);
+        }
+
+        protected void Recover(OperationType operationType, int requestedCount)
+        {
+            try
+            {
+                SetUnderlyingStream();
+            }
+            catch (Exception exception)
+            {
+                if (ErrorIsRecoverable(exception))
+                {
+                    OnRecoverableError(new StreamErrorEventArgs(operationType, Position, requestedCount, exception));
+                    Recover(operationType, requestedCount);
+                }
+                throw new RecoverableStreamException("Failed to recover stream", exception);
+            }
         }
 
         protected readonly StreamProvider StreamProvider;
