@@ -105,7 +105,7 @@ namespace ResumableStream
                     OnRecoverableError(new StreamErrorEventArgs(operationType, Position, requestedCount, exception));
                     Recover(operationType, requestedCount);
                 }
-                throw new RecoverableStreamException("Failed to recover stream", exception);
+                throw new ResumableStreamException("Failed to recover stream", exception);
             }
         }
 
@@ -122,7 +122,7 @@ namespace ResumableStream
                     OnRecoverableError(new StreamErrorEventArgs(operationType, Position, requestedCount, exception));
                     await RecoverAsync(operationType, requestedCount, cancellationToken).ConfigureAwait(false);
                 }
-                throw new RecoverableStreamException("Failed to recover stream", exception);
+                throw new ResumableStreamException("Failed to recover stream", exception);
             }
         }
 
