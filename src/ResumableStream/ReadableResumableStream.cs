@@ -78,8 +78,8 @@ namespace ResumableStream
 
 		public override long Position
 		{
-			get { return _position; }
-			set { throw new InvalidOperationException("Seek is not supported"); }
+			get => _position;
+			set => throw new InvalidOperationException("Seek is not supported");
 		}
 
 		#endregion
