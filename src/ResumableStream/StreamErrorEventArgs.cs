@@ -6,20 +6,20 @@ using JetBrains.Annotations;
 
 namespace ResumableStream
 {
-    [PublicAPI]
-    public class StreamErrorEventArgs
-    {
-        public readonly long Position;
-        public readonly int RequestedCount;
-        public readonly OperationType OperationType;
-        public readonly Exception Exception;
+	[PublicAPI]
+	public class StreamErrorEventArgs
+	{
+		public readonly long Position;
+		public readonly int RequestedCount;
+		public readonly OperationType OperationType;
+		public readonly Exception Exception;
 
-        public StreamErrorEventArgs(OperationType operationType, long position, int requestedCount, Exception exception)
-        {
-            OperationType = operationType;
-            Position = position;
-            RequestedCount = requestedCount;
-            Exception = exception;
-        }
-    }
+		public StreamErrorEventArgs(OperationType operationType, long position, int requestedCount, Exception exception)
+		{
+			OperationType = operationType;
+			Position = position;
+			RequestedCount = requestedCount;
+			Exception = exception;
+		}
+	}
 }

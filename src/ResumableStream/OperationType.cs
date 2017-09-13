@@ -5,12 +5,12 @@ using JetBrains.Annotations;
 
 namespace ResumableStream
 {
-    [PublicAPI]
-    public enum OperationType
-    {
-        Undefined,
-        Read,
-        Write,
-        Recovery
-    }
+	[PublicAPI]
+	public enum OperationType
+	{
+		Undefined,
+		Read,
+		Write,
+		Recovery
+	}
 }

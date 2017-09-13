@@ -8,10 +8,10 @@ using JetBrains.Annotations;
 
 namespace ResumableStream
 {
-    [PublicAPI]
-    public interface IStreamProvider
-    {
-        Stream GetStream(long position);
-        Task<Stream> GetStreamAsync(long position, CancellationToken cancellationToken);
-    }
+	[PublicAPI]
+	public interface IStreamProvider
+	{
+		Stream GetStream(long position);
+		Task<Stream> GetStreamAsync(long position, CancellationToken cancellationToken);
+	}
 }
