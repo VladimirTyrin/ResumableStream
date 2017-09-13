@@ -11,8 +11,10 @@ namespace ResumableStream.Tests
 	{
 		[TestMethod]
 		[ExpectedException(typeof(ArgumentNullException))]
-		public void TestMethod1()
+		public void ReadableResumableStream_ShouldNotBeCreatedWithNoProvider()
 		{
+			// ReSharper disable once ObjectCreationAsStatement
+			new ReadableResumableStream(null);
 		}
 	}
 }

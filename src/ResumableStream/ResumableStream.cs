@@ -85,7 +85,7 @@ namespace ResumableStream
 				throw new InvalidOperationException("Failed to retrieve underlying stream");
 		}
 
-		protected bool ErrorIsRecoverable(Exception exception) => true;
+		protected virtual bool ErrorIsRecoverable(Exception exception) => true;
 
 		protected void OnRecoverableError(StreamErrorEventArgs e)
 		{
