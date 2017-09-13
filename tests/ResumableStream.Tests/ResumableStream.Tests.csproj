@@ -48,8 +48,14 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ReadableResumableStreamTest\ReadableResumableStreamTest.cs" />
+    <Compile Include="Exceptions\UnrecoverableException.cs" />
+    <Compile Include="Mocks\NullStreamProvider.cs" />
+    <Compile Include="Exceptions\RecoverableException.cs" />
+    <Compile Include="ReadableResumableStreamTest\BasicTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Streams\StartFailingStream.cs" />
+    <Compile Include="Streams\TestResumableStream.cs" />
+    <Compile Include="Streams\TestStreamBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
